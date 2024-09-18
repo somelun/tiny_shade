@@ -1,17 +1,28 @@
 const std = @import("std");
 
+const WIDTH = 150;
+const HEIGHT = 50;
+
 pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+    // clear screen
+    std.debug.print("\x1b[2J\x1b[H", .{});
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    const array_size = (WIDTH + 1) * HEIGHT;
+    var screen_array: [array_size]u8 = [_]u8{'s'} ** array_size;
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    var i: usize = 1;
+    while (i <= HEIGHT) : (i += 1) {
+        screen_array[(i * WIDTH) + (i - 1)] = '\n';
+    }
 
-    try bw.flush(); // don't forget to flush!
+    while (true) {
+        std.debug.print("\x1b[2J\x1b[H", .{});
+
+        for (screen_array) |value| {
+            std.debug.print("{u}", .{value});
+        }
+        std.debug.print("\n", .{});
+
+        std.time.sleep(1 * std.time.ns_per_s);
+    }
 }
